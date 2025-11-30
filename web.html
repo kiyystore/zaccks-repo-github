@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zack official store</title>
+    <link rel="shortcut icon" href="./assets/icon.png" type="image/x-icon">
+    <style>
+        /* --- 1. CONFIG & RESPONSIVE SCALING ROOT --- */
+        :root {
+            --primary: #00ff9d; /* Hijau Neon */
+            --secondary: #bc13fe; /* Ungu Neon */
+            --text: #ffffff;
+            --discord: #5865F2;
+            --wa: #25D366;
+            --tg: #0088cc;
+        }
+
+        /* SISTEM AUTO-SCALE:
+           Ukuran dasar (font-size) html berubah sesuai lebar layar.
+           Semua elemen lain menggunakan satuan 'rem' agar ikut membesar/mengecil.
+        */
+        html { font-size: 16px; } /* Desktop Standar */
+
+        @media (max-width: 1200px) { html { font-size: 15px; } } /* Laptop Kecil */
+        @media (max-width: 992px) { html { font-size: 14px; } }  /* Tablet Landscape */
+        @media (max-width: 768px) { html { font-size: 13px; } }  /* Tablet Portrait */
+        @media (max-width: 576px) { html { font-size: 12px; } }  /* HP Besar */
+        @media (max-width: 400px) { html { font-size: 11px; } }  /* HP Kecil */
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            color: var(--text);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            /* BACKGROUND IMAGE SETUP */
+            /* Ganti 'assets/background.jpg' dengan nama file gambar Anda */
+            background: url('assets/background.jpg') no-repeat center center fixed;
+            background-size: cover; 
+            position: relative;
+        }
+
+        /* Overlay Hitam Transparan (Supaya teks terbaca di atas gambar) */
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75); /* Gelapkan gambar 75% */
+            z-index: -1; pointer-events: none;
+        }
+
+        /* --- 2. ANIMASI RGB --- */
+        @keyframes rgbBorder {
+            0% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+            33% { border-color: #00ff00; box-shadow: 0 0 10px #00ff00; }
+            66% { border-color: #0000ff; box-shadow: 0 0 10px #0000ff; }
+            100% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+        }
+        @keyframes rgbText {
+            0% { color: #ff0000; text-shadow: 0 0 5px #ff0000; }
+            50% { color: #00eaff; text-shadow: 0 0 5px #00eaff; }
+            100% { color: #ff0000; text-shadow: 0 0 5px #ff0000; }
+        }
+
+        /* --- 3. UI ELEMENTS (Header) --- */
+        .admin-badge {
+            position: absolute; top: 1.5rem; left: 1.5rem;
+            display: flex; align-items: center; gap: 0.8rem;
+            background: rgba(0,0,0,0.6); padding: 0.4rem 1rem 0.4rem 0.4rem;
+            border-radius: 50px; border: 1px solid #555;
+            backdrop-filter: blur(5px); z-index: 50;
+        }
+        .admin-img { width: 3rem; height: 3rem; border-radius: 50%; border: 2px solid #fff; object-fit: cover; }
+        .admin-info h4 { font-size: 0.9rem; margin: 0; color: #fff; }
+        .admin-status { font-size: 0.75rem; color: #00ff00; display: flex; align-items: center; gap: 0.4rem; }
+        .dot { width: 0.5rem; height: 0.5rem; background: #00ff00; border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .lang-switch {
+            position: absolute; top: 2rem; right: 1.5rem; z-index: 50;
+            background: rgba(0,0,0,0.8); border: 1px solid var(--secondary);
+            color: #fff; padding: 0.6rem 1.2rem; border-radius: 2rem;
+            cursor: pointer; font-weight: bold; font-size: 0.85rem;
+            display: flex; align-items: center; gap: 0.5rem; transition: 0.3s;
+        }
+
+        /* --- 4. INTRO SCREEN --- */
+        #introScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: #000; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.8s;
+        }
+        .intro-title { 
+            font-size: 4rem; font-weight: 900; 
+            margin-bottom: 2rem; letter-spacing: 0.3rem; text-align: center;
+            animation: rgbText 5s linear infinite; 
+        }
+        .btn-enter { 
+            background: transparent; border: 2px solid #fff; color: #fff; 
+            padding: 1rem 3rem; font-size: 1.2rem; font-weight: bold; 
+            cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.2rem; 
+        }
+        .btn-enter:hover { background: #fff; color: #000; box-shadow: 0 0 30px #fff; }
+
+        /* --- 5. MAIN CONTENT --- */
+        #mainContent { 
+            display: none; opacity: 0; transition: 1s; 
+            padding-top: 8rem; /* Jarak dari atas */
+            padding-bottom: 4rem; 
+        }
+
+        header { text-align: center; margin-bottom: 2.5rem; }
+        header h1 { font-size: 3rem; color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.2); margin-bottom: 0.5rem; }
+        
+        .category-tabs { display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 3rem; }
+        .tab-btn { 
+            background: rgba(0,0,0,0.5); color: #aaa; padding: 0.6rem 1.5rem; 
+            border: 1px solid #444; border-radius: 2rem; cursor: pointer; 
+            transition: 0.3s; font-weight: bold; font-size: 0.9rem;
+        }
+        .tab-btn.active { 
+            background: var(--primary); color: #000; border-color: var(--primary); 
+            box-shadow: 0 0 15px var(--primary); 
+        }
+
+        /* GRID SYSTEM */
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+        
+        .product-grid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); 
+            gap: 1.5rem;
+        }
+
+        .product-card {
+            background: rgba(30, 30, 30, 0.8); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 1rem; padding: 1rem;
+            transition: 0.3s; position: relative; overflow: hidden; 
+            display: flex; flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+        .product-card:hover { 
+            animation: rgbBorder 2s linear infinite; 
+            transform: translateY(-5px); 
+        }
+
+        .img-box { width: 100%; height: 10rem; background: #000; border-radius: 0.6rem; margin-bottom: 1rem; overflow: hidden; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .product-card:hover .img-box img { transform: scale(1.1); }
+
+        .p-title { font-weight: bold; margin-bottom: 0.4rem; color: #fff; font-size: 1.1rem; }
+        .p-price { color: var(--primary); font-weight: bold; margin-bottom: 1rem; font-size: 1.2rem; }
+
+        .btn-order {
+            margin-top: auto; width: 100%; padding: 0.8rem; background: transparent; 
+            border: 1px solid var(--primary); color: var(--primary); font-weight: bold; 
+            cursor: pointer; transition: 0.3s; border-radius: 0.5rem;
+            text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem;
+        }
+        .btn-order:hover { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--primary); }
+
+        /* --- 6. FOOTER AREA (Home Button di Bawah) --- */
+        .footer-area {
+            margin-top: 5rem;
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .btn-home-bottom {
+            background: transparent;
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 1rem 3rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 3rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        
+        .btn-home-bottom:hover {
+            background: #fff; color: #000; box-shadow: 0 0 20px #fff;
+        }
+
+        /* --- 7. MODAL POPUP --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-box {
+            background: #111; border: 2px solid #333;
+            padding: 2rem; border-radius: 1rem; width: 90%; max-width: 25rem;
+            text-align: center; transform: scale(0.8); transition: 0.3s;
+        }
+        .modal-box:hover { animation: rgbBorder 3s infinite; }
+        .modal-overlay.active .modal-box { transform: scale(1); }
+
+        .platform-btn {
+            display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+            width: 100%; padding: 0.9rem; margin-bottom: 0.8rem; border: none;
+            border-radius: 0.6rem; font-weight: bold; color: #fff; cursor: pointer;
+            transition: 0.3s; font-size: 1rem;
+        }
+        .btn-wa { background: var(--wa); }
+        .btn-tg { background: var(--tg); }
+        .btn-dc { background: var(--discord); }
+        .platform-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        .btn-close { margin-top: 1rem; background: transparent; border: 1px solid #555; color: #888; padding: 0.5rem 1.5rem; border-radius: 2rem; cursor: pointer; }
+
+        /* Helpers */
+        .anim-out { animation: fadeOut 0.3s forwards; }
+        .anim-in { animation: fadeIn 0.5s forwards; }
+        @keyframes fadeOut { to { opacity: 0; transform: scale(1.1); filter: blur(5px); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(2rem); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-overlay"></div>
+
+    <div id="introScreen">
+        <div class="intro-title">ZACK STORE</div>
+        <button class="btn-enter" onclick="enterShop()">ENTER</button>
+    </div>
+
+    <div class="admin-badge">
+        <img src="assets/admin.jpg" onerror="this.src='https://via.placeholder.com/100/111/fff?text=ADM'" class="admin-img">
+        <div class="admin-info">
+            <h4>Zack Official</h4>
+            <div class="admin-status"><div class="dot"></div> Online</div>
+        </div>
+    </div>
+
+    <button class="lang-switch" onclick="toggleCurrency()">
+        <span id="flagIcon">🇮🇩</span> <span id="currencyText">ID</span>
+    </button>
+
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-bottom:0.5rem; color:#fff;">CHOOSE YOUR ORDERING METHOD BELOW</h3>
+            <p id="selectedProductDisplay" style="margin-bottom:1.5rem; color:var(--primary);">Product</p>
+            
+            <button class="platform-btn btn-wa" onclick="processOrder('wa')">WhatsApp</button>
+            <button class="platform-btn btn-tg" onclick="processOrder('tg')">Telegram</button>
+            <button class="platform-btn btn-dc" onclick="processOrder('dc')">Discord</button>
+
+            <button class="btn-close" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <div id="mainContent">
+        <header>
+            <h1 id="headerTitle">ZACK STORE</h1>
+            <p style="color:#ccc; font-size:1rem;" id="headerSub">Semua produk Zack Store tersedia di sini dan tinggal dipilih</p>
+        </header>
+
+        <div class="category-tabs">
+            <button class="tab-btn" onclick="filterTab('script', this)">Script Bot WhatsApp</button>
+            <button class="tab-btn" onclick="filterTab('panelpub', this)">Panel [PUBLIC]</button>
+            <button class="tab-btn" onclick="filterTab('panelpriv', this)">Panel [PRIVATE]</button>
+            <button class="tab-btn" onclick="filterTab('akunml', this)">Mlbb Account</button>
+            <button class="tab-btn" onclick="filterTab('akunff', this)">Free Fire Account</button>
+            <button class="tab-btn" onclick="filterTab('fixerror', this)">Error repair services</button>
+        </div>
+
+        <div class="container">
+            <main class="product-grid" id="grid"></main>
+        </div>
+
+        <div class="footer-area">
+            <button class="btn-home-bottom" onclick="backToHome()">
+                🏠 BACK TO HOME
+            </button>
+            <p style="margin-top:1.5rem; color:#666; font-size:0.8rem;">&copy; 2025/Zack official</p>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA KONTAK ---
+        const contactInfo = {
+            whatsapp: "6289606860329", 
+            telegram: "t.me/Zackultra21", 
+            discord: "https://discord.gg/link"
+        };
+
+        // --- DATA PRODUK ---
+        const products = [
+            { id: 1, type: 'script', name: "Script Zack ultra Zero [CJS]", price: 30000, priceUsd: 1.80, img: "assets/script.jpg" },
+            { id: 2, type: 'script', name: "Script Zack ultra Zero [ESM]", price: 32000, priceUsd: 1.92, img: "assets/script.jpg" },
+            { id: 3, type: 'script', name: "Script Bot Store [CJS]", price: 10000, priceUsd: 0.60, img: "assets/scriptstr.jpg" },
+            { id: 4, type: 'script', name: "Script Bot Store [ESM]", price: 12000, priceUsd: 0.72, img: "assets/scriptstr.jpg" },
+            { id: 5, type: 'panelpub', name: "Panel pterodactyl 1GB [PUBLIC]", price: 1000, priceUsd: 0.060, img: "assets/panel.jpg" },
+            { id: 6, type: 'panelpub', name: "Panel pterodactyl 2GB [PUBLIC]", price: 2000, priceUsd: 0.12, img: "assets/panel.jpg" },
+            { id: 7, type: 'panelpub', name: "Panel pterodactyl 3GB [PUBLIC]", price: 3000, priceUsd: 0.18, img: "assets/panel.jpg" },
+            { id: 8, type: 'panelpub', name: "Panel pterodactyl 4GB [PUBLIC]", price: 4000, priceUsd: 0.24, img: "assets/panel.jpg" },
+            { id: 9, type: 'panelpub', name: "Panel pterodactyl 5GB [PUBLIC]", price: 5000, priceUsd: 0.30, img: "assets/panel.jpg" },
+            { id: 10, type: 'panelpub', name: "Panel pterodactyl 6GB [PUBLIC]", price: 6000, priceUsd: 0.36, img: "assets/panel.jpg" },
+            { id: 11, type: 'panelpub', name: "Panel pterodactyl 7GB [PUBLIC]", price: 7000, priceUsd: 0.42, img: "assets/panel.jpg" },
+            { id: 12, type: 'panelpub', name: "Panel pterodactyl 8GB [PUBLIC]", price: 8000, priceUsd: 0.48, img: "assets/panel.jpg" },
+            { id: 13, type: 'panelpub', name: "Panel pterodactyl 9GB [PUBLIC]", price: 9000, priceUsd: 0.54, img: "assets/panel.jpg" },
+            { id: 14, type: 'panelpub', name: "Panel pterodactyl 10GB [PUBLIC]", price: 10000, priceUsd: 0.60, img: "assets/panel.jpg" },
+            { id: 15, type: 'panelpriv', name: "Panel pterodactyl 1GB [PRIVATE]", price: 5000, priceUsd: 0.30, img: "assets/panel.jpg" },
+            { id: 16, type: 'panelpriv', name: "Panel pterodactyl 2GB [PRIVATE]", price: 10000, priceUsd: 0.60, img: "assets/panel.jpg" },
+            { id: 17, type: 'panelpriv', name: "Panel pterodactyl 3GB [PRIVATE]", price: 15000, priceUsd: 0.90, img: "assets/panel.jpg" },
+            { id: 18, type: 'panelpriv', name: "Panel pterodactyl 4GB [PRIVATE]", price: 20000, priceUsd: 1.20, img: "assets/panel.jpg" },
+            { id: 19, type: 'panelpriv', name: "Panel pterodactyl 5GB [PRIVATE]", price: 25000, priceUsd: 1.50, img: "assets/panel.jpg" },
+            { id: 20, type: 'panelpriv', name: "Panel pterodactyl 6GB [PRIVATE]", price: 30000, priceUsd: 1.80, img: "assets/panel.jpg" },
+            { id: 21, type: 'panelpriv', name: "Panel pterodactyl 7GB [PRIVATE]", price: 35000, priceUsd: 2.10, img: "assets/panel.jpg" },
+            { id: 22, type: 'panelpriv', name: "Panel pterodactyl 8GB [PRIVATE]", price: 40000, priceUsd: 2.40, img: "assets/panel.jpg" },
+            { id: 23, type: 'panelpriv', name: "Panel pterodactyl 9GB [PRIVATE]", price: 45000, priceUsd: 2.70, img: "assets/panel.jpg" },
+            { id: 24, type: 'panelpriv', name: "Panel pterodactyl 10GB [PRIVATE]", price: 50000, priceUsd: 3.00, img: "assets/panel.jpg" },
+            { id: 24, type: 'akunml', name: "Mobile Legend [Depends on available stock]", price: 0, priceUsd: 0, img: "assets/ml.jpg" }
+        ];
+
+        let isIDR = true;
+        let currentTab = 'all';
+        let selectedItem = null;
+
+        const textData = {
+            ID: { flag: "🇮🇩", curr: "ID", btnOrder: "ORDER SEKARANG", headSub: "Semua produk Zack Store tersedia di sini dan tinggal dipilih" },
+            US: { flag: "🇺🇸", curr: "EN", btnOrder: "ORDER NOW", headSub: "All Zack Store products are available here and you just have to choose." }
+        };
+
+        // --- FUNGSI TRANSISI HALAMAN ---
+        function enterShop() {
+            document.getElementById('introScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('introScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                setTimeout(() => document.getElementById('mainContent').style.opacity = '1', 50);
+                const scriptBtn = document.querySelector('.tab-btn');
+                filterTab('script', scriptBtn);
+            }, 800);
+        }
+
+        function backToHome() {
+            // Scroll ke atas sedikit biar smooth
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            
+            document.getElementById('mainContent').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('introScreen').style.display = 'flex';
+                setTimeout(() => document.getElementById('introScreen').style.opacity = '1', 50);
+            }, 800);
+        }
+
+        // --- CORE FUNCTIONS ---
+        function openOrderModal(id) {
+            selectedItem = products.find(p => p.id === id);
+            if(!selectedItem) return;
+            document.getElementById('selectedProductDisplay').innerText = selectedItem.name;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            selectedItem = null;
+        }
+
+        function processOrder(platform) {
+            if (!selectedItem) return;
+            const price = isIDR ? `Rp ${selectedItem.price.toLocaleString('id-ID')}` : `$ ${selectedItem.priceUsd.toFixed(2)}`;
+            const message = `Halo, saya mau order *${selectedItem.name}* seharga *${price}*.`;
+
+            let url = "";
+            if (platform === 'wa') url = `https://wa.me/${contactInfo.whatsapp}?text=${encodeURIComponent(message)}`;
+            else if (platform === 'tg') url = `https://t.me/${contactInfo.telegram}`;
+            else if (platform === 'dc') url = contactInfo.discord;
+
+            window.open(url, '_blank');
+            closeModal();
+        }
+
+        function toggleCurrency() {
+            isIDR = !isIDR;
+            updateUI();
+            renderProducts(currentTab);
+        }
+
+        function updateUI() {
+            const t = isIDR ? textData.ID : textData.US;
+            document.getElementById('flagIcon').innerText = t.flag;
+            document.getElementById('currencyText').innerText = t.curr;
+            document.getElementById('headerSub').innerText = t.headSub;
+        }
+
+        function filterTab(type, btn) {
+            currentTab = type;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const grid = document.getElementById('grid');
+            if(grid.children.length > 0){
+                Array.from(grid.children).forEach(c => c.classList.add('anim-out'));
+                setTimeout(() => renderProducts(type), 300);
+            } else {
+                renderProducts(type);
+            }
+        }
+
+        function renderProducts(filter) {
+            const grid = document.getElementById('grid');
+            const filtered = filter === 'all' ? products : products.filter(p => p.type === filter);
+            const t = isIDR ? textData.ID : textData.US;
+
+            grid.innerHTML = filtered.map((p, i) => {
+                const displayPrice = isIDR 
+                    ? `Rp ${p.price.toLocaleString('id-ID')}` 
+                    : `$ ${p.priceUsd.toFixed(2)}`;
+                const fallback = "https://via.placeholder.com/300/111/fff?text=" + p.type.toUpperCase();
+
+                return `
+                <div class="product-card anim-in" style="animation-delay:${i*0.05}s">
+                    <div class="img-box">
+                        <img src="${p.img}" onerror="this.src='${fallback}'">
+                    </div>
+                    <div class="p-title">${p.name}</div>
+                    <div class="p-price">${displayPrice}</div>
+                    <button class="btn-order" onclick="openOrderModal(${p.id})">${t.btnOrder}</button>
+                </div>`;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
